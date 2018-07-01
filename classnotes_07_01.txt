@@ -1,0 +1,129 @@
+07/01/2018
+----------
+
+In my application we have multifield, multipage forms and I was responsible that those forms are working as expected.
+I tested manually and automated end to end scenarios:
+For ex one simple scenario:
+	My automation code fills out all required fields on the form and after submitting the form, there is confirmation that shows all the data that was entered.
+	1) My code validates everything on that page by comparing and asserting that it is matching what was entered.
+	2) It send out email as well, and My code connects to email using Java Email library
+	and asserts data is matching
+
+=========================
+
+All the data also flows into database via RestAPI.
+
+UI/GUI PART:
+	Automation steps/Actions:
+		1) Filling out form
+		2) Validating confirmation page data
+		3) Validating confirmation email data
+		4) Validating data of all submissions
+		5) Validating a special page with all data submissions. It is in HTML table format.
+
+		For all those scenarios, I designed and created a framework using java, Selenium WebDriver as Automation tool,
+		TestNG for assertions , Cucumber BDD for feature files.
+
+REST API is called everytime user submits data.
+So I have to validate that API is working as expected too.
+
+	1) Right after submitting the form, My code sends GET request with that Unique Loan/Quote/Appilication ID.
+	GET -> https://forms.zohopublic.com/murodil/form/JobApplicationForm/api/2162
+
+	Java+ RESTAssured:
+
+	Response response=RestAssured.given().acceptType(	JSON).When().get(url);
+
+	1) assertEquals(response.statusCode,200);
+	2) Verify JSON response Body:
+	DeSerialization: Json data from API response and converting to Java HASHMAP object.
+		Map jsonData = response.body().as(Map.class);
+	3) assertEquals(jsonData.get("applicationID"),2162);
+
+
+DATABASE VALIDATION:
+	After my code submits application on front end, data goes to oracle Database:
+	1) My code connects to db using JDBC api/library and runs and SQL command:
+
+	oracledriver:pathtodbserver:port
+
+	Code:
+		Connection conn=DriverManager.getConnection(url,userName, password);
+		Statement st = conn.createStatement(scrollable,...);
+		ResultSet rs = st.executeQuery("select * from applicants where app_id=2162");
+
+		rs.next();
+		assertEquals(rs.getString("firstname"),"Murodil");
+
+		Map<String,String> dbMap = new HashMap<>();
+	
+		dbMap.put("appid",rs.getString("app_id"));
+		dbMap.put("firstname",rs.getString("firstrna,e"));..
+		              K,V
+		assertEquals(dbMap.get("appid"),2162);
+
+
+assertEquals(dbMap,jsonData);
+==================================
+CHALLENGE:
+LOTS OF DATA IN UI IN WEBTABLE FORMAT.
+IN MULTIPLE PAGES
+ALL THE DATA IN CSV REPORT FILE.
+I NEED TO VALIDATE THAT CSV REPORT CONTAINS ALL THE DATA FROM UI. AND ASSERT THAT DATA MATCHES
+
+SOLUTION:
+	1) Goto UI > read all data from table row by row and store into a java data structure
+	2) Read csv report row by row and store into another java data structure
+	3) Compare that data in data structures are matching
+
+----------
+Flow of automation in my project.
+
+USER STORY > CUCUMBER scenario > Write automation code into Step definitions
+---------
+
+POJO, PURE DATA STRUCTURE
+-------------------------
+
+
+rows/columns
+	Applicant info: Id, Fullname, email, phone, current salary.
+
+Map<Integer,List<String>>	
+
+
+Map<Integer,Map<String,String>>
+
+{12345,{fullname="abc","email=fcakjd@gmail.com",,}}
+{12346,{fullname="dfgfd","email=fcaghkjd@gmail.com",,}}
+
+map.get(12345).get("fullname")
+================================
+
+
+HOW TO READ DATA FROM CSV FILE.
+
+1)Using openCsv dependency
+2)Pure java readers
+
+CSV -> Comma Separated values.
+	Are very lightweight can be read for any editor
+===========================	
+
+2188,"Donald, Trump",cibim@creazionisa.com,1112223333,1
+2187,"Alexis, Rodriguez",djale2008@gmail.com,5715337976,50
+
+List<String[]> list ;
+
+0 -> {2188,"Donald, Trump",cibim@creazionisa.com,1112223333,1}
+
+1 -> {2187,"Alexis, Rodriguez",djale2008@gmail.com,5715337976,50}
+
+
+
+
+
+
+
+
+
