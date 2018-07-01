@@ -9,7 +9,8 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(
 		dryRun=false,
 		features="src/test/resources/features/",
-		glue = "stepdefs"
+		glue = "stepdefs",
+		tags= "@csvReportDataValidation"
 		)
 public class CukesRunner {
 			
